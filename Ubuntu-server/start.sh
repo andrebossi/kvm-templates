@@ -3,19 +3,18 @@
 DISK_FORMAT="qcow2" # Define VM disk image format.. qcow2|img
 DISK_PATH="/var/lib/libvirt/images" # Define path where VM disk images are stored
 DISK_SIZE="30" # Define disk size in GB
-EXTRA_ARGS="ks=file:/ks.cfg network --bootproto=dhcp --device=eth0 console=ttyS0,115200n8 serial"
-LOCATION="http://mirror.centos.org/centos/7/os/x86_64/"
+EXTRA_ARGS="console=ttyS0,115200n8 serial"
+LOCATION="http://archive.ubuntu.com/ubuntu/dists/bionic/main/installer-amd64/"
 NETWORK_BRIDGE="br0" # virbr0
 OS_TYPE="linux" # Define OS type to install... linux|windows
-OS_VARIANT="centos7.0" # centos7.0
-KICKSTART_FILE="$(pwd)/ks.cfg" # Define kickstart file for CentOS based installs if desired
-KICKSTART_INSTALL="true" # Define if kickstart install is desired
+OS_VARIANT="ubuntu18.04"
+PRESEED_FILE="$(pwd)/preseed.cfg" # Define preseed file for Debian based installs if desired
+PRESEED_INSTALL="true" # Define if preseed install is desired
 RAM="2048" # Define memory to allocate to VM in MB... 512|1024|2048
 VCPUS="2" # Define number of vCPUs to allocate to VM
-VMName="centos7" # Define name of VM to create
+VMName="ubuntu-server" # Define name of VM to create
 
-# Provision VM without ks.cfg
-if [ "$KICKSTART_INSTALL" = false ]; then
+if [ "$PRESEED_INSTALL" = false ]; then
 virt-install \
 --connect qemu:///system \
 --virt-type kvm
@@ -33,8 +32,7 @@ virt-install \
 --extra-args "$EXTRA_ARGS"
 fi
 
-# Provision VM with ks.cfg
-if [ "$KICKSTART_INSTALL" = true ]; then
+if [ "$PRESEED_INSTALL" = true ]; then
 virt-install \
 --connect qemu:///system \
 --virt-type kvm \
@@ -49,7 +47,7 @@ virt-install \
 --check disk_size=off \
 --console pty,target_type=serial \
 --location $LOCATION \
---initrd-inject=$KICKSTART_FILE \
+--initrd-inject=$PRESEED_FILE \
 --noreboot \
 --extra-args "$EXTRA_ARGS"
 fi
